@@ -51,7 +51,7 @@ module HQMF2JS
         if field_type == :value
           'filterEventsByField'
         elsif field_type == :timestamp
-          'adjustBoundsForField'
+          'handleFieldsWithTimestamp'
         elsif field_type == :nested_timestamp
           'denormalizeEventsByLocation'
         end
@@ -75,7 +75,11 @@ module HQMF2JS
               end
             elsif value.type=='PQ'
               if value.unit != nil
-                "new PQ(#{value.value}, \"#{value.unit}\", #{value.inclusive?})"
+                if value.unit == 'STATIC_DATE' # use a Date for STATIC_DATE values
+                  "new PQ(new Date('#{value.value}'), \"#{value.unit}\", #{value.inclusive?})"
+                else
+                  "new PQ(#{value.value}, \"#{value.unit}\", #{value.inclusive?})"
+                end
               else
                 "new PQ(#{value.value}, null, #{value.inclusive?})"
               end

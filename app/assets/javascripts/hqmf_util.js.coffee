@@ -560,6 +560,15 @@ filterEventsByField = (events, field, value) ->
   hqmf.SpecificsManager.maintainSpecifics(result, events)
 @filterEventsByField = filterEventsByField
 
+handleFieldsWithTimestamp = (events, field, value) ->
+  if value? && value.unit? && value.unit() == 'STATIC_DATE'
+    respondingEvents = (event for event in events when event.respondTo(field))
+    unit = value.unit()
+    result = (event for event in respondingEvents when event[field](unit)? && value.match(event[field](unit)))
+    hqmf.SpecificsManager.maintainSpecifics(result, events)
+  else @adjustBoundsForField(events, field)
+@handleFieldsWithTimestamp = handleFieldsWithTimestamp
+
 shiftTimes = (event, field) ->
   shiftedEvent = new event.constructor(event.json)
   shiftedEvent.setTimestamp(shiftedEvent[field]())
